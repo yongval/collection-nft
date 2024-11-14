@@ -127,6 +127,14 @@
             const address = 'tz1QrjEmzi84EGW7HHj9EKjFhwKiwUTsEj5i';
             const carousel = document.getElementById('carousel');
 
+            const gateways = [
+    'https://dweb.link/ipfs/',
+    'https://cloudflare-ipfs.com/ipfs/',
+    'https://ipfs.io/ipfs/',
+    'https://gateway.pinata.cloud/ipfs/'
+];
+
+
             try {
                 const response = await fetch(`https://api.tzkt.io/v1/tokens/balances?account=${address}&token.standard=fa2&limit=1000`);
                 const data = await response.json();
