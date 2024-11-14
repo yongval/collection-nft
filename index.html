@@ -60,7 +60,7 @@
             text-align: center;
         }
 
-        h1{
+        h1 {
             position: absolute;
             margin: 10px;
             font-size: 15px;
@@ -127,14 +127,6 @@
             const address = 'tz1QrjEmzi84EGW7HHj9EKjFhwKiwUTsEj5i';
             const carousel = document.getElementById('carousel');
 
-            const gateways = [
-    'https://dweb.link/ipfs/',
-    'https://cloudflare-ipfs.com/ipfs/',
-    'https://ipfs.io/ipfs/',
-    'https://gateway.pinata.cloud/ipfs/'
-];
-
-
             try {
                 const response = await fetch(`https://api.tzkt.io/v1/tokens/balances?account=${address}&token.standard=fa2&limit=1000`);
                 const data = await response.json();
@@ -177,10 +169,11 @@
             const imageElement = createImageElement(thumbnailUri, nft.token.metadata.name);
 
             nftElement.innerHTML = `
-                <a href="https://objkt.com/tokens/${nft.token.contract.address}/${nft.token.tokenId}" target="_blank"></a>
-                <h2>${nft.token.metadata.name}</h2>
+                <a href="https://objkt.com/tokens/${nft.token.contract.address}/${nft.token.tokenId}" target="_blank">
+                    <h2>${nft.token.metadata.name}</h2>
+                </a>
             `;
-            nftElement.querySelector('a').appendChild(imageElement);
+            nftElement.querySelector('a').prepend(imageElement);
 
             return nftElement;
         }
