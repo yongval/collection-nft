@@ -33,7 +33,7 @@
             display: flex;
             gap: 20px;
             padding-right: 20px;
-            animation: scroll 20s linear infinite;
+            animation: scroll 30s linear infinite;
             will-change: transform;
         }
 
@@ -123,8 +123,10 @@
 
                 nfts.forEach(nft => {
                     const nftElement = createNFTElement(nft);
-                    nftGroup1.appendChild(nftElement.cloneNode(true));
-                    nftGroup2.appendChild(nftElement.cloneNode(true));
+                    if (nftElement) {
+                        nftGroup1.appendChild(nftElement.cloneNode(true));
+                        nftGroup2.appendChild(nftElement.cloneNode(true));
+                    }
                 });
 
                 // Append two sets of images to ensure infinite scrolling
@@ -142,7 +144,11 @@
             nftElement.className = 'nft';
 
             const name = nft.token.metadata.name || 'NFT sans nom';
-            const thumbnailUri = nft.token.metadata.displayUri || '';
+            const thumbnailUri = nft.token.metadata.displayUri || nft.token.metadata.thumbnailUri || '';
+
+            // Only create the NFT element if there is a valid thumbnail URI
+            if (!thumbnailUri) return null;
+
             const imageElement = createImageElement(thumbnailUri, name);
 
             const link = document.createElement('a');
@@ -165,17 +171,14 @@
             image.alt = name;
 
             const gateways = [
-    'https://dweb.link/ipfs/',
-    'https://cloudflare-ipfs.com/ipfs/',
-    'https://ipfs.io/ipfs/',
-    'https://gateway.pinata.cloud/ipfs/'
-];
-
+                'https://dweb.link/ipfs/',
+                'https://cloudflare-ipfs.com/ipfs/'
+            ];
 
             let uriIndex = 0;
             const loadImage = () => {
                 if (uriIndex >= gateways.length) {
-                    image.src = 'path_to_fallback_image.jpg';
+                    image.src = 'path_to_fallback_image.jpg'; // Fallback image if all gateways fail
                     return;
                 }
                 image.src = displayUri.replace('ipfs://', gateways[uriIndex]);
