@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite NFT Carousel</title>
+    <style>
+        @font-face {
+            font-family: Absans;
+            src: url(src/fonts/Absans-Regular.woff);
+        }
+
+        body {
+            font-family: Absans;
+            text-align: center;
+            margin: 0;
+            background-color: #f1f1f7;
+        }
+
+        .carousel-container {
+            overflow: hidden;
+            max-width: 1450px;
+            margin: 0 auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            -webkit-mask: linear-gradient(90deg,#0000,#000 3% 97%,#0000);
+        }
+
+        .carousel {
+            display: flex;
+            gap: 20px;
+            padding-right: 20px;
+            animation: scroll 20s linear infinite;
+            will-change: transform;
+        }
+
+        .nft {
+            flex: 0 0 170px;
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .nft img {
+            width: 170px;
+            height: 170px;
+            object-fit: cover;
+        }
+
+        .nft h2 {
+            font-size: 12px;
+            font-weight: normal;
+            padding-left: 20px;
+            padding-right: 20px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        h1{
+            position: absolute;
+            margin: 10px;
+            font-size: 15px;
+            text-transform: uppercase;
+        }
+
+        #center {
+            top: 0;
+            left: 50%; 
+            transform: translate(-50%, 0);
+        }
+
+        #top-right {
+            top: 0;
+            right: 0;
+        }
+
+        #top-left {
+            top: 0; 
+            left: 0;
+        }
+
+        #bottom-right {
+            bottom: 0; 
+            right: 0; 
+        }
+
+        #bottom-left {
+            bottom: 0; 
+            left: 0; 
+        }
+
+        /* Pause animation on hover */
+        .carousel-container:hover .carousel {
+            animation-play-state: paused;
+        }
+
+        /* Animation for infinite scrolling */
+        @keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(calc(-100% - 20px));
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 id="center">Infinite</h1>
+    <h1 id="top-right">Tezos</h1>
+    <h1 id="top-left">NFT Collection</h1>
+    <h1 id="bottom-right">Valerie Jeyeon Yong</h1>
+    <h1 id="bottom-left">Objkt.com</h1>
+
+    <div class="carousel-container">
+        <div class="carousel" id="carousel">
+            <!-- Images will be dynamically added here -->
+        </div>
+    </div>
+
+    <script>
+        async function fetchNFTs() {
+            const address = 'tz1QrjEmzi84EGW7HHj9EKjFhwKiwUTsEj5i';
+            const carousel = document.getElementById('carousel');
+
+            try {
+                const response = await fetch(`https://api.tzkt.io/v1/tokens/balances?account=${address}&token.standard=fa2&limit=1000`);
+                const data = await response.json();
+
+                if (!data || data.length === 0) {
+                    carousel.innerHTML = '<p>No NFTs found for this address.</p>';
+                    return;
+                }
+
+                const nfts = data.filter(item => item.token && item.token.metadata);
+                if (nfts.length === 0) {
+                    carousel.innerHTML = '<p>No NFTs found for this address.</p>';
+                    return;
+                }
+
+                const nftGroup1 = document.createDocumentFragment();
+                const nftGroup2 = document.createDocumentFragment();
+
+                nfts.forEach(nft => {
+                    const nftElement = createNFTElement(nft);
+                    nftGroup1.appendChild(nftElement.cloneNode(true));
+                    nftGroup2.appendChild(nftElement.cloneNode(true));
+                });
+
+                // Append two sets of images to ensure infinite scrolling
+                carousel.appendChild(nftGroup1);
+                carousel.appendChild(nftGroup2);
+            } catch (error) {
+                console.error('Error fetching NFTs:', error);
+                carousel.innerHTML = '<p>Error fetching NFTs. Please try again.</p>';
+            }
+        }
+
+        // Function to create each NFT element
+        function createNFTElement(nft) {
+            const nftElement = document.createElement('div');
+            nftElement.className = 'nft';
+
+            const thumbnailUri = nft.token.metadata.displayUri || '';
+            const imageElement = createImageElement(thumbnailUri, nft.token.metadata.name);
+
+            nftElement.innerHTML = `
+                <a href="https://objkt.com/tokens/${nft.token.contract.address}/${nft.token.tokenId}" target="_blank"></a>
+                <h2>${nft.token.metadata.name}</h2>
+            `;
+            nftElement.querySelector('a').appendChild(imageElement);
+
+            return nftElement;
+        }
+
+        // Function to load image with IPFS support
+        function createImageElement(displayUri, name) {
+            const image = document.createElement('img');
+            image.alt = name;
+
+            const gateways = [
+                'https://dweb.link/ipfs/',
+                'https://cloudflare-ipfs.com/ipfs/'
+            ];
+
+            let uriIndex = 0;
+            const loadImage = () => {
+                if (uriIndex >= gateways.length) {
+                    image.src = 'path_to_fallback_image.jpg';
+                    return;
+                }
+                image.src = displayUri.replace('ipfs://', gateways[uriIndex]);
+                image.onerror = () => {
+                    uriIndex++;
+                    loadImage();
+                };
+            };
+
+            loadImage();
+            return image;
+        }
+
+        window.onload = fetchNFTs;
+    </script>
+</body>
+</html>
