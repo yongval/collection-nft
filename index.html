@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Infinite NFT Carousel</title>
     <style>
+        /* Styles */
         @font-face {
             font-family: Absans;
             src: url(src/fonts/Absans-Regular.woff);
@@ -25,8 +26,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-
-            -webkit-mask: linear-gradient(90deg,#0000,#000 3% 97%,#0000);
+            -webkit-mask: linear-gradient(90deg, #0000, #000 3% 97%, #0000);
         }
 
         .carousel {
@@ -54,8 +54,6 @@
         .nft h2 {
             font-size: 12px;
             font-weight: normal;
-            padding-left: 20px;
-            padding-right: 20px;
             margin: 10px 0;
             text-align: center;
         }
@@ -67,43 +65,13 @@
             text-transform: uppercase;
         }
 
-        #center {
-            top: 0;
-            left: 50%; 
-            transform: translate(-50%, 0);
-        }
+        #center { top: 0; left: 50%; transform: translate(-50%, 0); }
+        #top-right { top: 0; right: 0; }
+        #top-left { top: 0; left: 0; }
+        #bottom-right { bottom: 0; right: 0; }
+        #bottom-left { bottom: 0; left: 0; }
 
-        #top-right {
-            top: 0;
-            right: 0;
-        }
-
-        #top-left {
-            top: 0; 
-            left: 0;
-        }
-
-        #bottom-right {
-            bottom: 0; 
-            right: 0; 
-        }
-
-        #bottom-left {
-            bottom: 0; 
-            left: 0; 
-        }
-
-        a {
-            text-decoration: none;
-        }
-
-        a:link, a:visited {
-            color: black;
-        }
-
-        a:hover {
-            color: black;
-        }
+        a { text-decoration: none; color: black; }
 
         /* Pause animation on hover */
         .carousel-container:hover .carousel {
@@ -112,12 +80,8 @@
 
         /* Animation for infinite scrolling */
         @keyframes scroll {
-            0% {
-                transform: translateX(0);
-            }
-            100% {
-                transform: translateX(-100%);
-            }
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
         }
     </style>
 </head>
@@ -177,15 +141,20 @@
             const nftElement = document.createElement('div');
             nftElement.className = 'nft';
 
+            const name = nft.token.metadata.name || 'NFT sans nom';
             const thumbnailUri = nft.token.metadata.displayUri || '';
-            const imageElement = createImageElement(thumbnailUri, nft.token.metadata.name);
+            const imageElement = createImageElement(thumbnailUri, name);
 
-            nftElement.innerHTML = `
-                <a href="https://objkt.com/tokens/${nft.token.contract.address}/${nft.token.tokenId}" target="_blank">
-                    <h2>${nft.token.metadata.name}</h2>
-                </a>
-            `;
-            nftElement.querySelector('a').prepend(imageElement);
+            const link = document.createElement('a');
+            link.href = `https://objkt.com/tokens/${nft.token.contract.address}/${nft.token.tokenId}`;
+            link.target = '_blank';
+
+            const title = document.createElement('h2');
+            title.textContent = name;
+
+            link.appendChild(imageElement);
+            link.appendChild(title);
+            nftElement.appendChild(link);
 
             return nftElement;
         }
